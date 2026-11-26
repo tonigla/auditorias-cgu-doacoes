@@ -269,6 +269,8 @@ m4 <- reg(paste("y_share ~ antes + antes:e2012 +", C))
 s12 <- base[base$eleicao == 2012, ]
 s12$y_bin_obras <- ifelse(s12$obras_inc > 0, 1, 0)
 s12$y_bin_outros <- ifelse(s12$pj_inc - s12$obras_inc > 0, 1, 0)
+# participação das construtoras no valor doado nos municípios da amostra (Seção 7.4)
+sum(s12$obras_total)/sum(s12$pj_total)
 m5 <- reg(paste("y_bin_obras ~ antes +", X), s12)
 m6 <- reg(paste("y_bin_outros ~ antes +", X), s12)
 rob(reg(paste("y_share_obras ~ antes +", X), s12))
