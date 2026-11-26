@@ -73,6 +73,8 @@ linearHypothesis(bal, paste(ctrl, "= 0"), vcov. = vcovHC(bal, type = "HC1"), tes
 # o número de ordens de serviço caiu nos sorteios recentes, o que muda a medida de corrupção
 summary(lm(corr ~ antes + e2012, data = base))
 summary(lm(no_os ~ antes + e2012, data = base))
+# média de ordens de serviço antes e a partir do 34º sorteio
+tapply(base$no_os, base$sorteio >= 34, mean)
 
 # ---------------- Figura 1: linha do tempo ----------------
 options(OutDec = ",")
@@ -203,6 +205,9 @@ mqo <- reg(paste("y_share ~ antes +", C), dados)
 fr <- reg(paste("y_share ~ sorteado_antes +", C), dados)
 iv1 <- ivreg(as.formula(paste("y_share ~ antes +", C, "| sorteado_antes +", C)), data = dados)
 iv2 <- ivreg(as.formula(paste("y_share ~ antes +", C, "|", Z, "+", C)), data = dados)
+# estimativa com cada instrumento separado (o teste J compara as duas)
+iv_z2 <- ivreg(as.formula(paste("y_share ~ antes +", C, "| meses_ate_eleicao +", C)), data = dados)
+c(coef(iv1)["antes"], coef(iv_z2)["antes"])
 # relevância: F do primeiro estágio
 pe1 <- reg(paste("antes ~ sorteado_antes +", C), dados)
 pe2 <- reg(paste("antes ~", Z, "+", C), dados)
@@ -287,3 +292,8 @@ grava_tabela(tab7, c(" & & Parcela do & & & Recebeu de & Recebeu de \\\\",
 k <- c("antes", "antes:pref_cand"); V <- vcovHC(m1, type = "HC1")
 c(sum(coef(m1)[k]), sqrt(sum(V[k, k])))
 range(meses[base$antes == 1])
+# Seção 7.5: entre os controles, sorteados antes da eleição (26 e 36) contra sorteados depois
+controles <- base[base$antes == 0, ]
+table(controles$sorteado_antes)
+rob(reg(paste("y_share ~ sorteado_antes +", C), controles))["sorteado_antes", ]
+rob(reg(paste("y_bin ~ sorteado_antes +", C), controles))["sorteado_antes", ]
